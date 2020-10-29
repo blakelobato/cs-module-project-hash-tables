@@ -22,8 +22,9 @@ class HashTable:
 
     def __init__(self, capacity):
         # Your code here
-
-
+        self.capacity = capacity
+        self.buckets = [None] * self.capacity
+    
     def get_num_slots(self):
         """
         Return the length of the list you're using to hold the hash
@@ -34,8 +35,8 @@ class HashTable:
 
         Implement this.
         """
-        # Your code here
-
+        return self.capacity
+        
 
     def get_load_factor(self):
         """
@@ -44,6 +45,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        pass
 
 
     def fnv1(self, key):
@@ -52,8 +54,7 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
-
-        # Your code here
+        pass
 
 
     def djb2(self, key):
@@ -63,6 +64,10 @@ class HashTable:
         Implement this, and/or FNV-1.
         """
         # Your code here
+        hashkey = 5381
+        for char in key.encode():
+            hashkey = ((hashkey << 5) + hashkey) + char
+        return hashkey
 
 
     def hash_index(self, key):
@@ -82,6 +87,8 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        self.buckets[self.hash_index(key)] = value
+        return self.capacity
 
 
     def delete(self, key):
@@ -93,6 +100,10 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        try:
+            self.buckets[self.hash_index(key)] = None
+        except IndexError as e:
+            "WARNING key not found"
 
 
     def get(self, key):
@@ -104,6 +115,10 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        try:
+            return self.buckets[self.hash_index(key)]
+        except IndexError as e:
+            return None
 
 
     def resize(self, new_capacity):
