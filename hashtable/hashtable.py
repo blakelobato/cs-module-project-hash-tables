@@ -24,7 +24,9 @@ class HashTable:
         # Your code here
         self.capacity = capacity
         self.buckets = [None] * self.capacity
-    
+        self.length = len(self.buckets)
+        self.value_length = 0
+
     def get_num_slots(self):
         """
         Return the length of the list you're using to hold the hash
@@ -35,7 +37,7 @@ class HashTable:
 
         Implement this.
         """
-        return self.capacity
+        return self.value_length/ self.capacity
         
 
     def get_load_factor(self):
@@ -45,7 +47,7 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        pass
+        return len(self.buckets)
 
 
     def fnv1(self, key):
@@ -54,7 +56,13 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
-        pass
+        offset_basis = 14695981039346656037
+        prime_value = 1099511628211
+        hashkey = offset_basis
+        for byte in key.encode():
+            hashkey *= prime_value
+            hashkey = hashkey ^ byte
+        return hashkey
 
 
     def djb2(self, key):
@@ -87,9 +95,26 @@ class HashTable:
         Implement this.
         """
         # Your code here
-        self.buckets[self.hash_index(key)] = value
-        return self.capacity
 
+        if self.buckets[self.hash_index(key)]:
+            current_node = self.buckets[self.hash_index(key)]
+            while current_node is not None:
+                if current_node.key == key:
+                    current_node.value = value
+                    self.value_length += 1
+                    return
+                current_node = self.buckets[self.hash_index(key)].next
+            old = self.buckets[self.hash_index(key)]
+            new = HashTableEntry(key, value)
+            new.next = old
+            self.buckets[self.hash_index(key)] = new
+
+        else:
+            self.buckets[self.hash_index(key)] = HashTableEntry(key, value)
+            self.value_length += 1
+
+        if self.get_load_factor() >= .7:
+            self.resize(self.get_num_slots()*2)
 
     def delete(self, key):
         """
@@ -101,7 +126,22 @@ class HashTable:
         """
         # Your code here
         try:
-            self.buckets[self.hash_index(key)] = None
+            current_node = self.buckets[self.hash_index(key)]
+            if current_node.key == key:
+                self.buckets[self.hash_index(key)] = current_node.next
+                self.length -= 1
+                self.value_length -= 1
+                return
+            prev = current_node
+            current_node = current_node.next
+            while current_node is not None:
+                if current_node.key == key:
+                    prev.next = current_node.next
+                    self.length -= 1
+                    self.value_length -= 1
+                    break
+                prev = current_node
+                current_node = current_node.next
         except IndexError as e:
             "WARNING key not found"
 
@@ -119,6 +159,12 @@ class HashTable:
             return self.buckets[self.hash_index(key)]
         except IndexError as e:
             return None
+        current_node = self.buckets[self.hash_index(key)]
+        while current_node is not None:
+            if current_node.key == key:
+                return current_node.value
+            current_node = current_node.next
+        return None
 
 
     def resize(self, new_capacity):
@@ -129,6 +175,16 @@ class HashTable:
         Implement this.
         """
         # Your code here
+        temp = []
+        for item in self.buckets:
+            if item is not None:
+                temp.append((item.key, item.value))
+            else:
+                pass
+            self.buckets = [None] * new_capacity
+            self.capacity = self.get_num_slots()
+            for j in temp:
+                self.put(j[0], j[1])
 
 
 

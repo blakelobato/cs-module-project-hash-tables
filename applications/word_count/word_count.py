@@ -1,6 +1,14 @@
+
+from collections import Counter
 def word_count(s):
     # Your code here
-
+    output = s
+    for i in output:
+        if i in '":;,.-+=/\|[]}{()*^&':
+            output = output.replace(i, "")
+    output = output.lower()
+    print(output)
+    return dict(Counter(output.split()))
 
 
 if __name__ == "__main__":

@@ -1,5 +1,9 @@
 # Your code here
+import random
+import math
+from collections import defaultdict
 
+cache = {}
 
 def slowfun_too_slow(x, y):
     v = math.pow(x, y)
@@ -15,6 +19,10 @@ def slowfun(x, y):
     output, but completes quickly instead of taking ages to run.
     """
     # Your code here
+    if (x,y) not in cache:
+        cache[(x,y)] = (math.factorial(math.pow(x,y)) // (x+y))
+    return cache[(x,y)]
+
 
 
 
